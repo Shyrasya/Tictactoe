@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ошибка</title>
+    <style>
+        body {
+            background-color: #D0E17E;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-family: 'Chalkboard', sans-serif;
+            color: #000000;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        p {
+            margin-bottom: 50px;
+        }
+
+        .try-again {
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .try-again:hover {
+            background-color: #2b8f85;
+            border-color: #2b8f85;
+            color: white;
+        }
+
+        .try-again:active {
+            background-color: #1e5e57;
+            border-color: #1e5e57;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Что-то пошло не так!</h1>
+<div id="error-message"></div>
+<button class="button try-again" id="tryAgainButton">Попробовать сыграть еще раз</button>
+
+<script src="/js/checkAccessToken.js"></script>
+
+<script>
+    const errorMessage = localStorage.getItem("errorMessage");
+    const errorMessageDiv = document.getElementById("error-message");
+    window.history.pushState({}, "", "/tictactoe/error");
+
+    if (errorMessage) {
+        errorMessageDiv.innerHTML = `<p>${errorMessage}</p>`;
+    } else {
+        errorMessageDiv.innerHTML = "<p>Неизвестная ошибка o_O</p>";
+    }
+
+    document.getElementById("tryAgainButton").addEventListener("click", async function () {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error('Ошибка проверки токена! ', error.message);
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+        }
+        localStorage.removeItem("playerChoice");
+        localStorage.removeItem("errorMessage");
+        window.location.href = "/main.html";
+    });
+</script>
+</body>

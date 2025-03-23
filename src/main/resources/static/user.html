@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль игрока</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #D0E17E;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-family: 'Chalkboard', sans-serif;
+            color: #000000;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 20px;
+            color: #444;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+
+        p strong {
+            font-size: 25px;
+            color: #000;
+            font-weight: 700;
+        }
+
+
+        #user-login, #user-uuid {
+            font-size: 20px;
+            color: #444;
+            font-weight: 400;
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 30px;
+            position: relative;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-section p {
+            margin: 0;
+            font-size: 20px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        .info-section p strong {
+            font-size: 25px;
+            color: #000;
+            font-weight: 700;
+        }
+
+        .game-back {
+            margin-left: auto;
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .game-back, .show-button {
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .game-back:hover, .show-button:hover {
+            background-color: #2b8f85;
+            border-color: #2b8f85;
+            color: white;
+        }
+
+        .game-back:active, .show-button:active {
+            background-color: #1e5e57;
+            border-color: #1e5e57;
+            color: white;
+        }
+
+        .leaderboard-section {
+            top: 100px;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+        }
+
+        .leaderboard-section label {
+            font-size: 25px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .leaderboard-input {
+            padding: 10px;
+            font-size: 10px;
+            border: 2px solid #2b8f85;
+            border-radius: 5px;
+            outline: none;
+            width: 100px;
+            margin-right: 15px;
+        }
+
+        .table-leaders, .table-games {
+            width: 80%;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+            display: none;
+        }
+
+        .table-games th, .table-games td {
+            font-size: 7px;
+        }
+
+
+        .table-leaders th, .table-leaders td,
+         .table-games th, .table-games td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #000;
+            background-color: transparent;
+            color: black;
+        }
+
+        .table-leaders th, .table-games th {
+            background-color: #30b1a4;
+            color: white;
+        }
+
+        .table-leaders tr:nth-child(even),
+        .table-leaders tr:nth-child(odd),
+        .table-games tr:nth-child(even),
+        .table-games tr:nth-child(odd){
+            background-color: transparent;
+        }
+
+        #leadersTableContainer, #endGamesTableContainer {
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="profileContent" style="display: none;">
+    <h1 id="header">Ваш игровой профиль</h1>
+    <div class="profile-container">
+        <div class="info-section">
+            <p><strong>Логин:</strong> <span id="user-login"></span></p>
+            <p><strong>UUID:</strong> <span id="user-uuid"></span></p>
+            <div class="leaderboard-section">
+                <label for="leaderboard-input"><strong>Список лидеров</strong></label>
+                <input type="text" id="leaderboard-input" class="leaderboard-input" placeholder="Введите количество">
+                <button class="show-button">Показать</button>
+            </div>
+        </div>
+        <button class="game-back" id="game-back">Вернуться к выбору игры</button>
+    </div>
+
+    <div id="leadersTableContainer"></div>
+    <table class="table-leaders">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Логин</th>
+            <th>UUID</th>
+            <th>Рейтинг</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Здесь будет динамически вставляться строка из JS -->
+        </tbody>
+    </table>
+
+    <p><strong>Список завершенных игр</strong></p>
+
+    <div id="endGamesTableContainer"></div>
+    <table class="table-games">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>UUID игры</th>
+            <th>Поле</th>
+            <th>UUID ходящего игрока</th>
+            <th>Дата</th>
+            <th>Сейчас ходит</th>
+            <th>Первый игрок</th>
+            <th>UUID первого игрока</th>
+            <th>Второй игрок</th>
+            <th>UUID второго игрока</th>
+            <th>Состояние</th>
+            <th>UUID победителя</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</div>
+
+<script src="/js/checkAccessToken.js"></script>
+<script src="/js/storageClear.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        await getProfile();
+    });
+
+    async function getProfile() {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+        }
+
+        const accessToken = localStorage.getItem("accessToken");
+
+        try {
+            const response = await fetch("/tictactoe/user", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + accessToken
+                }
+            });
+
+            if (response.ok) {
+                window.history.pushState({}, "", "/tictactoe/user");
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    clearLocalStorage();
+                    window.location.href = "/tictactoe/auth/login";
+                    return;
+                }
+
+                const profileContent = document.getElementById("profileContent");
+                const userLoginElement = document.getElementById("user-login");
+                const userUuidElement = document.getElementById("user-uuid");
+
+                userLoginElement.textContent = data.login;
+                userUuidElement.textContent = data.userUuid;
+
+                loadEndGames();
+
+                profileContent.style.display = "block";
+
+            } else {
+                console.error("Ошибка получения данных о пользователе! ", response.status, response.statusText);
+                localStorage.setItem("errorMessage", 'Ошибка получения данных о пользователе! ' + response.status + response.statusText);
+                window.location.href = "/error.html";
+            }
+        } catch (error) {
+            console.error("Сетевая ошибка при попытке получить данные пользователя! ", error);
+        }
+    }
+
+    document.getElementById("game-back").addEventListener("click", async function () {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error('Ошибка проверки токена! ', error.message);
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+        }
+
+        window.location.href = "/main.html";
+    });
+
+    document.querySelector('.show-button').addEventListener('click', async () => {
+        const leaderboardInput = document.getElementById('leaderboard-input');
+        const leadersCount = leaderboardInput.value.trim();
+
+        if (!leadersCount || isNaN(leadersCount) || leadersCount <= 0) {
+            alert("Пожалуйста, введите корректное число.");
+            return;
+        }
+
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+        }
+
+        try {
+            const response = await fetch('/tictactoe/user/leaders?leadersCount=' + leadersCount, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                console.error('Ошибка: ' + data.error);
+                return;
+            }
+
+            const leadersList = data.leadersList;
+            const tableContainer = document.getElementById('leadersTableContainer');
+            tableContainer.innerHTML = '';
+
+            if (leadersList.length === 0) {
+                tableContainer.innerHTML = '<p>Лидеров не найдено.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.classList.add('table-leaders');
+            table.style.borderCollapse = 'collapse';
+            table.style.width = '100%';
+
+            const headerRow = document.createElement('tr');
+            ['№', 'Логин', 'UUID', 'Рейтинг'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                th.style.padding = '8px';
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            leadersList.forEach((leader, index) => {
+                const row = document.createElement('tr');
+
+                [index + 1, leader.login, leader.userUuid, leader.winRate.toFixed(2)].forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    td.style.padding = '8px';
+                    row.appendChild(td);
+                });
+
+                table.appendChild(row);
+            });
+
+            tableContainer.appendChild(table);
+            table.style.display = 'block';
+        } catch (error) {
+            console.error('Ошибка при получении списка лидеров:', error);
+            alert('Не удалось получить список лидеров.');
+        }
+    });
+
+    async function loadEndGames() {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+            return;
+        }
+
+        try {
+            const response = await fetch('/tictactoe/user/endGames', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                console.error('Ошибка: ' + data.error);
+                return;
+            }
+
+            const endGames = data.endGames;
+            const tableContainer = document.getElementById('endGamesTableContainer');
+            tableContainer.innerHTML = '';
+
+            if (endGames.length === 0) {
+                tableContainer.innerHTML = '<p>Завершённых игр не найдено.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.classList.add('table-games');
+            table.style.borderCollapse = 'collapse';
+            table.style.width = '100%';
+
+            const headerRow = document.createElement('tr');
+            [
+                '#', 'UUID игры', 'Поле', 'UUID ходящего игрока', 'Дата',
+                'Сейчас ходит', 'Первый игрок', 'UUID первого игрока',
+                'Второй игрок', 'UUID второго игрока', 'Состояние', 'UUID победителя'
+            ].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                th.style.padding = '8px';
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            function renderBoard(board) {
+                if (board && typeof board === 'object' && board.board && Array.isArray(board.board)) {
+                    board = board.board;
+                }
+
+                if (!board || !Array.isArray(board) || board.length !== 3 || !board.every(row => Array.isArray(row) && row.length === 3)) {
+                    return '—';
+                }
+
+                const table = document.createElement('table');
+                table.style.borderCollapse = 'collapse';
+                table.style.margin = 'auto';
+
+                board.forEach(row => {
+                    const tr = document.createElement('tr');
+                    row.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.style.border = '1px solid black';
+                        td.style.padding = '5px';
+                        td.style.textAlign = 'center';
+                        td.textContent = cell === 1 ? 'X' : cell === 2 ? 'O' : ' ';
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+
+                return table.outerHTML;
+            }
+
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleString('en-GB', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                }).replace(',', '');
+            }
+
+            endGames.forEach((game, index) => {
+                const row = document.createElement('tr');
+
+                const gameData = [
+                    index + 1,
+                    game.uuid || '—',
+                    renderBoard(game.board.board) || '—',
+                    game.currentPlayerUuid || '—',
+                    formatDate(game.gameCreationDate) || '—',
+                    game.nowTurnSign == 1 ? 'X' : game.nowTurnSign == 2 ? 'O' : '—',
+                    game.playerOneSign == 1 ? 'X' : game.playerTwoSign == 2 ? 'O' : '—',
+                    game.playerOneUuid || '—',
+                    game.playerTwoSign == 1 ? 'X' : game.playerTwoSign == 2 ? 'O' : '—',
+                    game.playerTwoUuid || '—',
+                    game.state === 'WIN' ? 'Победа' : game.state === 'TIE' ? 'Ничья' : game.state || '—',
+                    game.winnerUuid || '—'
+                ];
+
+                gameData.forEach(value => {
+                    const td = document.createElement('td');
+                    td.innerHTML = value;
+
+                    td.style.padding = '8px';
+                    row.appendChild(td);
+                });
+
+                table.appendChild(row);
+            });
+
+            tableContainer.appendChild(table);
+            table.style.display = 'block';
+        } catch (error) {
+            console.error('Ошибка при получении завершённых игр:', error);
+            alert('Не удалось получить список завершённых игр.');
+        }
+    }
+</script>
+</body>
+</html>

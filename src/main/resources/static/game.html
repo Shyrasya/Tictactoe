@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Крестики-Нолики</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <style>
+        body {
+            background-color: #D0E17E;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-family: 'Chalkboard', sans-serif;
+            color: #000000;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .game-grid {
+            flex-grow: 0;
+            padding-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .button {
+            width: 100px;
+            height: 100px;
+            font-size: 30px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            text-align: center;
+            background-color: transparent;
+            outline: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            color: white;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-button {
+            background-color: #ffffff;
+            border: 3px solid rgba(184, 184, 184, 0.6);
+        }
+
+        .empty-button:hover {
+            background-color: #f1f1f1;
+            border-color: rgba(136, 136, 136, 0.6);
+        }
+
+        .empty-button:active {
+            background-color: #e0e0e0;
+            border-color: rgba(102, 102, 102, 0.6);
+        }
+
+        .cross, .circle {
+            font-size: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: transparent;
+            transition: all 0.3s ease-in-out;
+            color: white;
+        }
+
+        .cross {
+            background-color: #ff727b;
+            border: 5px solid #de626a;
+        }
+
+        .cross:hover {
+            background-color: #de626a;
+            border-color: #de626a;
+        }
+
+        .cross:active {
+            background-color: #9e444a;
+            border-color: #9e444a;
+        }
+
+        .circle {
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+        }
+
+        .circle:hover {
+            background-color: #2b8f85;
+        }
+
+        .circle:active {
+            background-color: #1e5e57;
+        }
+
+         .message {
+            color: #de626a;
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .try-again {
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: white;
+
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            max-width: 300px;
+            width: auto;
+            line-height: 1;
+        }
+
+        .try-again:hover {
+            background-color: #2b8f85;
+            border-color: #2b8f85;
+        }
+
+        .try-again:active {
+            background-color: #1e5e57;
+            border-color: #2b8f85;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            gap: 30px;
+            margin-top: -30px;
+        }
+
+        .player-info {
+            width: 350px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 145px;
+        }
+
+        .player-info p {
+            margin: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .left {
+            text-align: left;
+            align-items: center;
+        }
+
+        .right {
+            text-align: right;
+            align-items: center;
+        }
+
+        .uuid {
+            text-align: center;
+            font-size: 0.8em;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="gameContent" style="display: none;">
+    <h1>Крестики-Нолики</h1>
+
+    <p>UUID игры: <span id="gameUuid"></span></p>
+
+    <p id="turnText"></p>
+
+    <div class="game-container">
+        <div class="player-info left">
+            <p>
+                1 игрок: (<span id="playerOneSign"></span>)
+            </p>
+            <div class="uuid">
+                <span id="playerOneUuid" class="player-uuid"></span>
+            </div>
+        </div>
+
+        <div class="game-grid"></div>
+
+        <div class="player-info right">
+            <p>
+                2 игрок: (<span id="playerTwoSign"></span>)
+            </p>
+            <div class="uuid" id="secondPlayerContainer">
+                <span id="playerTwoUuid" class="player-uuid"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="message" class="message"></div>
+    <div id="resultMessage" class="message"></div>
+    <a id="tryAgainButton" class="try-again" href="/main.html">Попробовать снова</a>
+
+    <form id="leaveGameForm">
+        <button id="leaveButton" class="try-again" type="button">Выйти из текущей игры</button>
+    </form>
+
+    <div id="user-tooltip" style="position: absolute; display: none; background-color: white; border: 1px solid black; padding: 5px;"></div>
+</div>
+
+
+    <script src="/js/checkAccessToken.js"></script>
+    <script src="/js/storageClear.js"></script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            async function fetchGame() {
+                try {
+                    await checkAndRefreshToken();
+                } catch (error) {
+                    console.error("Ошибка проверки токена");
+                    clearLocalStorage();
+                    window.location.href = "/tictactoe/auth/login";
+                }
+
+                const accessToken = localStorage.getItem('accessToken');
+                const gameUuid = localStorage.getItem('gameUuid');
+
+                try {
+                    const response = await fetch(`/tictactoe/game/${gameUuid}`, {
+                        method: 'GET',
+                        headers: {
+                            "Authorization": "Bearer " + accessToken
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        localStorage.setItem('errorMessage', data.message);
+                        window.location.href = '/error.html';
+                        return;
+                    }
+                    window.history.pushState({}, "", "/tictactoe/game/" + gameUuid);
+
+                    const { game, message } = data;
+                    document.getElementById('message').textContent = message;
+                    updateTryAgainButton(message);
+
+                    document.getElementById("gameUuid").textContent = gameUuid;
+
+                    updateTurnText(game);
+
+                    document.getElementById('playerOneUuid').textContent = game.playerOneUuid;
+                    document.getElementById('playerTwoUuid').textContent = game.playerTwoUuid || "";
+
+                    document.getElementById('playerOneSign').textContent = game.playerOneSign === 1 ? "X" : "O";
+                    document.getElementById('playerTwoSign').textContent = game.playerTwoSign === 1 ? "X" : "O";
+
+                    renderField(game);
+
+                    if (game.state === 'WAIT') {
+                        document.getElementById('leaveGameForm').style.display = 'block';
+                    } else {
+                        document.getElementById('leaveGameForm').style.display = 'none';
+                    }
+
+                    document.getElementById('tryAgainButton').style.display = 'none';
+                    document.getElementById("gameContent").style.display = 'block';
+                } catch (error) {
+                    console.error("Ошибка при запросе игры! ", error);
+                }
+            }
+
+            await fetchGame();
+
+            document.getElementById("gameContent").style.display = 'block';
+
+            const opponent = localStorage.getItem("opponent");
+            if (opponent === "human") {
+                const gameUuid = localStorage.getItem('gameUuid');
+
+                const socket = new SockJS(`/ws`);
+                const stompClient = Stomp.over(socket);
+
+                stompClient.connect({}, function (frame) {
+
+                    stompClient.subscribe(`/topic/game/${gameUuid}`, function (messageOutput) {
+                        const data = JSON.parse(messageOutput.body);
+
+                        if (data.playerTwoUuid) {
+                            document.getElementById('playerTwoUuid').textContent = data.playerTwoUuid;
+                        }
+
+                        if (data.state === 'WAIT') {
+                            document.getElementById('leaveGameForm').style.display = 'block';
+                        } else {
+                            document.getElementById('leaveGameForm').style.display = 'none';
+                        }
+
+                        if (["GAME", "WIN", "TIE"].includes(data.state)) {
+                            updateTurnText(data);
+
+                            renderField(data);
+
+                            const message = data.message;
+                            document.getElementById('message').textContent = message;
+                            updateTryAgainButton(message);
+                        }
+
+                        if (["WIN", "TIE"].includes(data.state)) {
+                            const message = data.state === "WIN"
+                                ? `Победили ${(data.winnerUuid === data.playerOneUuid ? data.playerOneSign : data.playerTwoSign) === 1 ? "Крестики!" : "Нолики!"}`
+                                : "Ничья!";
+                            document.getElementById('message').textContent = message;
+                            updateTryAgainButton(message);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    <script>
+        function updateTurnText(game) {
+            const turnText = document.getElementById('turnText');
+            if (game.state !== 'WAIT') {
+                const currentSign = game.nowTurnSign === 1 ? 'X' : 'O';
+                turnText.textContent = `Текущий ход: (${currentSign})`;
+            } else {
+                turnText.textContent = '';
+            }
+        }
+
+        function renderField(game) {
+            const gameGrid = document.querySelector('.game-grid');
+            gameGrid.innerHTML = '';
+
+            let field;
+
+            if (Array.isArray(game.board.board)) {
+                field = game.board.board.flat();
+            } else {
+                console.error("Некорректный формат данных game.board:", game.board);
+                return;
+            }
+
+
+            field.forEach((cell, index) => {
+                const button = document.createElement('button');
+                button.className = `button ${cell === 1 ? "cross" : cell === 2 ? "circle" : "empty-button"}`;
+                button.textContent = cell === 1 ? 'X' : (cell === 2 ? 'O' : '');
+
+                button.dataset.index = index;
+
+                button.addEventListener('click', async () => {
+                    await makeMove(index);
+                });
+                gameGrid.appendChild(button);
+            });
+        }
+
+        function updateTryAgainButton(message) {
+            const tryAgainButton = document.getElementById('tryAgainButton');
+
+            if (!tryAgainButton) {
+                console.error("Кнопка 'Попробовать снова' не найдена в DOM!");
+                return;
+            }
+
+            if (typeof message === 'string') {
+                if (message.includes('Победили') || message.trim() === 'Ничья!' || message.includes('Игра уже окончена')) {
+                    tryAgainButton.style.display = 'inline-block';
+                } else {
+                    tryAgainButton.style.display = 'none';
+                }
+            } else {
+                tryAgainButton.style.display = 'none';
+            }
+        }
+
+        async function makeMove(index) {
+            try {
+                await checkAndRefreshToken();
+            } catch (error) {
+                console.error("Ошибка проверки токена");
+                clearLocalStorage();
+                window.location.href = "/tictactoe/auth/login";
+                return;
+            }
+
+            const accessToken = localStorage.getItem('accessToken');
+            const gameUuid = localStorage.getItem('gameUuid');
+            const playerChoice = localStorage.getItem('playerChoice');
+
+            try {
+                const response = await fetch(`/tictactoe/game/${gameUuid}?cellIndex=${index}&playerChoice=${playerChoice}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": "Bearer " + accessToken
+                    },
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    console.error("Ошибка хода: ", data.message);
+                    return;
+                }
+
+                if (data.message) {
+                    document.getElementById('message').textContent = data.message;
+                    updateTryAgainButton(data.message);
+                } else {
+                    document.getElementById('message').textContent = "";
+                }
+
+                if (data.game) {
+                    renderField(data.game);
+                }
+
+            } catch (error) {
+                console.error("Ошибка при выполнении хода! ", error);
+            }
+        }
+
+        document.querySelectorAll(".player-uuid").forEach(element => {
+            element.addEventListener("mouseenter", async (event) => {
+                const userUuid = event.target.textContent;
+                const tooltip = document.getElementById("user-tooltip");
+
+                try {
+                    await checkAndRefreshToken();
+                } catch (error) {
+                    console.error("Ошибка проверки токена");
+                    clearLocalStorage();
+                    window.location.href = "/tictactoe/auth/login";
+                    return;
+                }
+
+                try {
+                    const accessToken = localStorage.getItem('accessToken');
+                    const response = await fetch(`/tictactoe/user/stats/${userUuid}`, {
+                        headers: { "Authorization": "Bearer " + accessToken }
+                    });
+
+                    if (!response.ok) {
+                        console.error("Ошибка запроса! ", response.status);
+                        throw new Error(`Ошибка запроса ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    tooltip.innerHTML = `
+                        <strong>Всего игр:</strong> ${data.totalGames}. Побед: ${data.percentWinsGames}% <br>
+                        <strong>С компьютером:</strong> ${data.vsComputerGames} (Побед: ${data.winsVsComputer} (${data.percentWinsVsComputer}%), Поражений: ${data.lossesVsComputer}, Ничьи: ${data.tiesVsComputer}) <br>
+                        <strong>С человеком:</strong> ${data.vsHumanGames} (Побед: ${data.winsVsHuman} (${data.percentWinsVsHuman}%), Поражений: ${data.lossesVsHuman}, Ничьи: ${data.tiesVsHuman}) <br>
+                    `;
+
+                    tooltip.style.display = "block";
+                    tooltip.style.top = event.pageY + "px";
+                    tooltip.style.left = event.pageX + "px";
+                } catch (error) {
+                    console.error("Ошибка загрузки данных! ", error);
+                }
+            });
+
+            element.addEventListener("mouseleave", () => {
+                document.getElementById("user-tooltip").style.display = "none";
+            });
+        });
+
+        document.getElementById("leaveButton").addEventListener("click", async () => {
+            try {
+                await checkAndRefreshToken();
+            } catch (error) {
+                console.error("Ошибка проверки токена");
+                clearLocalStorage();
+                window.location.href = "/tictactoe/auth/login";
+                return;
+            }
+
+            const accessToken = localStorage.getItem('accessToken');
+            const gameUuid = localStorage.getItem('gameUuid');
+
+            try {
+                const response = await fetch(`/tictactoe/game/delete/${gameUuid}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    localStorage.removeItem("playerChoice");
+                    localStorage.removeItem("userUuid");
+                    localStorage.removeItem("activeUserGameUuid");
+                    window.location.href = "/main.html";
+                } else {
+                    const errorMessage = await response.text();
+                    console.error("Ошибка при удалении игры!", errorMessage);
+                    localStorage.setItem("errorMessage", 'Ошибка при удалении игры! ' + errorMessage);
+                    window.location.href = "/error.html";
+                }
+            } catch (error) {
+                console.error("Ошибка при выполнении запроса на удаление игры! ", error);
+            }
+        });
+    </script>
+</body>
+</html>

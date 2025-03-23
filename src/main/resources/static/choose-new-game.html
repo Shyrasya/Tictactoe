@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Выбор противника</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <style>
+        body {
+            background-color: #D0E17E;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-family: 'Chalkboard', sans-serif;
+            color: #000000;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 20px;
+            color: #444;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .button {
+            width: 100px;
+            height: 40px;
+            font-size: 30px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            text-align: center;
+            background-color: transparent;
+            outline: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            color: white;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .try-again {
+            text-decoration: none;
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px 30px;
+            border-radius: 10px;
+            white-space: nowrap;
+            width: auto;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .try-again:hover {
+            background-color: #2b8f85;
+            border-color: #2b8f85;
+        }
+
+        .try-again:active {
+            background-color: #1e5e57;
+            border-color: #1e5e57;
+        }
+
+        .game-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 10px;
+            width: 100%;
+            margin-left: -11px;
+        }
+
+        .game-item form {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .number-span {
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .game-uuid {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ff727b;
+            border: 5px solid #de626a;
+            color: white;
+            border-radius: 10px;
+            padding: 10px 10px;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        .game-uuid:hover {
+            background-color: #de626a;
+            border-color: #de626a;
+        }
+
+        .game-uuid:active {
+            background-color: #9e444a;
+            border-color: #9e444a;
+        }
+
+        .message {
+            color: #de626a;
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        #gamesList {
+            margin-top: -20px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <h1>В какую игру хотите сыграть?</h1>
+    <a class="try-again" id="try-again">Вернуться к выбору знака</a>
+    <div id="message" class="message"></div>
+    <div id="gamesList"></div>
+
+    <template id="game-template">
+        <div class="game-item">
+            <span class="number-span"></span>
+            <form action="/tictactoe/game/choice" method="post">
+                <input type="hidden" name="gameUuid">
+                <button type="submit" class="game-uuid"></button>
+            </form>
+        </div>
+    </template>
+
+    <p id="noGamesMessage" style="display: none;">Пока нет доступных игр. Подождите...</p>
+
+<script src="/js/checkAccessToken.js"></script>
+<script src="/js/storageClear.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        async function makeGetRequest() {
+            try {
+                await checkAndRefreshToken();
+            } catch (error) {
+                clearLocalStorage();
+                window.location.href = "/tictactoe/auth/login";
+            }
+
+            const playerChoice = localStorage.getItem("playerChoice");
+            const accessToken = localStorage.getItem("accessToken");
+            try {
+                const response = await fetch(`/tictactoe/game/choice?playerChoice=${encodeURIComponent(playerChoice)}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + accessToken
+                    }
+                });
+
+                window.history.pushState({}, "", "/tictactoe/game/choice");
+
+                if (!response.ok) {
+                    console.error("Ошибка GET-запроса /tictactoe/game/choice");
+                    localStorage.setItem("errorMessage", "Ошибка GET-запроса /tictactoe/game/choice");
+                    window.location.href = "/error.html";
+                    return;
+                }
+
+                const result = await response.json();
+                const freeGames = result.freeGames;
+
+                if (freeGames.length > 0) {
+                    renderGamesList(freeGames);
+                }
+
+                var socket = new SockJS('/ws');
+                var stompClient = Stomp.over(socket);
+
+                stompClient.connect(
+                    {},
+                    function () {
+                        stompClient.subscribe('/topic/game-list/' + playerChoice, function (message) {
+                            var freeGames = JSON.parse(message.body);
+                            renderGamesList(freeGames);
+                        });
+                    },
+                    function (error) {
+                        console.error("Ошибка подключения к WebSocket:", error);
+                        clearLocalStorage();
+                        window.location.href = "/tictactoe/auth/login";
+                    }
+                );
+
+            } catch (error) {
+                console.error("Сетевая ошибка при попытке открыть страницу с доступными играми! ", error);
+            }
+        }
+
+        makeGetRequest();
+
+        document.getElementById("try-again").addEventListener("click", function() {
+            window.location.href = "/main.html";
+        });
+    });
+
+        function renderGamesList(freeGames) {
+            var gamesListElement = document.getElementById("gamesList");
+            var messageElement = document.getElementById("message");
+            gamesListElement.innerHTML = '';
+            var noGamesMessageElement = document.getElementById("noGamesMessage");
+
+            if (freeGames.length === 0) {
+                noGamesMessageElement.style.display = "block";
+            } else {
+                noGamesMessageElement.style.display = "none";
+                freeGames.forEach(function(game, index) {
+                    var gameItem = document.createElement('div');
+                    gameItem.className = 'game-item';
+
+                    var gameNumber = document.createElement('span');
+                    gameNumber.className = 'number-span';
+                    gameNumber.innerText = (index + 1) + '.';
+
+                    var button = document.createElement('button');
+                    button.className = 'game-uuid';
+                    button.innerText = game;
+                    button.onclick = function() {
+                        joinGame(game);
+                    };
+
+                    gameItem.appendChild(gameNumber);
+                    gameItem.appendChild(button);
+                    gamesListElement.appendChild(gameItem);
+                });
+            }
+        }
+
+        async function joinGame(gameUuid) {
+            try {
+                await checkAndRefreshToken();
+            } catch (error) {
+                console.error("Ошибка проверки токена");
+                clearLocalStorage();
+                window.location.href = "/tictactoe/auth/login";
+            }
+
+            const playerChoice = localStorage.getItem("playerChoice");
+            const accessToken = localStorage.getItem("accessToken");
+
+            try {
+                const response = await fetch("/tictactoe/game/choice", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": "Bearer " + accessToken
+                    },
+                    body: `gameUuid=${encodeURIComponent(gameUuid)}&playerChoice=${encodeURIComponent(playerChoice)}`
+                })
+
+                if (!response.ok) {
+                    console.error(`Ошибка сервера: ${response.status}`);
+                    const errorMessage = await response.text();
+                    console.error(`Сообщение об ошибке: ${errorMessage}`);
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (response.status === 409) {
+                    var messageElement = document.getElementById("message");
+                    messageElement.innerText = result.message;
+                    messageElement.style.display = "block";
+                } else if (response.status === 200) {
+                    localStorage.setItem("gameUuid", result.gameUuid);
+                    window.location.href = "/game.html";
+                }
+            } catch (error) {
+                console.error("Сетевая ошибка при попытке присоединения к ожидаемой игре:", error);
+            }
+        }
+    </script>
+</body>
+</html>
