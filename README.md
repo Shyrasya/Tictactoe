@@ -23,7 +23,7 @@
 
 <div align=center>
 
-![Демонстрация работы игры](images/gameprocess.mp4)
+![Демонстрация работы игры](images/gameprocess.gif)
 
 *Демонстрация работы игры*
 </div>
