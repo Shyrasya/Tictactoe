@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Крестики-Нолики - Выбор знака</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #D0E17E;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-family: 'Chalkboard', sans-serif;
+            color: #000000;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 20px;
+            color: #444;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(2, 100px);
+            gap: 30px;
+            justify-content: center;
+            justify-items: center;
+            margin: 0 auto;
+            padding-top: 0px;
+            padding-bottom: 20px;
+        }
+
+        .button {
+            width: 100px;
+            height: 100px;
+            font-size: 30px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            text-align: center;
+            background-color: transparent;
+            outline: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            color: white;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cross, .circle {
+            font-size: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: transparent;
+            transition: all 0.3s ease-in-out;
+            color: white;
+        }
+
+        .cross {
+            background-color: #ff727b;
+            border: 5px solid #de626a;
+        }
+
+        .cross:hover {
+            transform: translateY(-3px);
+            background-color: #de626a;
+            border-color: #de626a;
+        }
+
+        .cross:active {
+            transform: translateY(2px);
+            background-color: #9e444a;
+            border-color: #9e444a;
+        }
+
+        .circle {
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+        }
+
+        .circle:hover {
+            transform: translateY(-3px);
+            background-color: #2b8f85;
+        }
+
+        .circle:active {
+            transform: translateY(2px);
+            background-color: #1e5e57;
+        }
+
+        .message {
+            color: #de626a;
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .authorization {
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #ffb072;
+            border: 5px solid #de9962;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            margin-top: 40px;
+        }
+        .authorization:hover {
+            background-color: #de9962;
+        }
+        .authorization:active {
+            background-color: #9e6c44;
+        }
+
+        input[type="radio"] {
+            opacity: 0;
+            position: absolute;
+            z-index: 1;
+            pointer-events: all;
+        }
+
+        label {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            padding-left: 30px;
+            margin-right: 15px;
+            margin-bottom: 60px;
+            line-height: 20px;
+        }
+
+        label::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #eee;
+            border: 2px solid #ccc;
+        }
+
+        label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 2px;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #2b8f85;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        input[type="radio"]:checked + label::after {
+            opacity: 1;
+        }
+
+        .goToActiveGame {
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #30b1a4;
+            border: 5px solid #2b8f85;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .goToActiveGame:hover {
+            background-color: #2b8f85;
+            border-color: #2b8f85;
+        }
+
+        .goToActiveGame:active {
+            background-color: #1e5e57;
+            border-color: #1e5e57;
+        }
+
+        .button-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #go-active-game, #logout {
+            width: auto;
+            margin-top: 30px;
+        }
+
+        #logout {
+            margin-top: 30px;
+        }
+
+        .user {
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #72c2ff;
+            border: 5px solid #62a8de;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            margin-top: 30px;
+        }
+
+        .user:hover {
+            background-color: #53b5ff;
+        }
+        .user:active {
+            background-color: #008cf6;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="gameContent" style="display: none;">
+    <h1 id="greeting-header" style="display: none;">Добро пожаловать, <span id="user-login"></span> в игру Крестики-Нолики!</h1>
+        <p>С кем хотите сыграть?</p>
+
+        <div>
+            <input type="radio" id="computer" name="opponent" value="computer" checked>
+            <label for="computer">Компьютер</label>
+
+            <input type="radio" id="human" name="opponent" value="human">
+            <label for="human">Человек</label>
+        </div>
+
+        <p id="choice-label">Выбери игровой знак:</p>
+
+        <div class="button-container">
+            <button class="button cross" data-player-choice="X">X</button>
+            <button class="button circle" data-player-choice="O">O</button>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <!-- Кнопки обернуты в контейнер -->
+        <div class="button-wrapper">
+            <button class="goToActiveGame" id="go-active-game" style="display:none;">Перейти к активной игре</button>
+
+            <button class="user" id="user-profile">Профиль</button>
+            <button class="authorization" id="logout">Выход</button>
+        </div>
+</div>
+
+<script src="/js/checkAccessToken.js"></script>
+<script src="/js/storageClear.js"></script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const userLoginElement = document.getElementById("user-login");
+        const headerElement = document.getElementById("greeting-header");
+
+        const userData = await fetchUserInfo();
+
+        if (userData) {
+            userLoginElement.textContent = userData.login;
+            headerElement.style.display = "block";
+        }
+
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+            return;
+        }
+
+        const accessToken = localStorage.getItem("accessToken");
+
+        if (!accessToken) {
+            console.error("Токен не найден в LocalStorage.");
+            window.location.href = "/tictactoe/auth/login";
+            return;
+        }
+
+        try {
+            const response = await fetch("/tictactoe/game", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + accessToken
+                }
+            });
+
+            if (response.ok) {
+                localStorage.removeItem("playerChoice");
+                window.history.pushState({}, "", "/tictactoe/game");
+            } else {
+                console.error("Ошибка GET-запроса. Не удалось загрузить страницу");
+                localStorage.setItem("errorMessage", "Ошибка GET-запроса. Не удалось загрузить страницу");
+                window.location.href = "/error.html";
+            }
+        } catch (error) {
+            console.error("Сетевая ошибка при попытке входа на приветственную страницу", error);
+        }
+
+        const savedOpponent = localStorage.getItem("opponent");
+        if (savedOpponent) {
+            const radioElement = document.getElementById(savedOpponent);
+            if (radioElement) {
+                radioElement.checked = true;
+            }
+        } else {
+            document.getElementById("computer").checked = true;
+        }
+
+        document.querySelectorAll('input[name="opponent"]').forEach(input => {
+            input.addEventListener('change', function() {
+                localStorage.setItem("opponent", this.value);
+            });
+        });
+
+        document.querySelectorAll(".button-container button").forEach(button => {
+            button.addEventListener("click", handleGameRequest);
+        });
+
+        document.getElementById("user-profile").addEventListener("click", handleProfile);
+        document.getElementById("logout").addEventListener("click", handleExit);
+        document.getElementById("gameContent").style.display = 'block';
+    });
+
+    async function fetchUserInfo() {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+            return;
+        }
+
+        const accessToken = localStorage.getItem("accessToken");
+
+        try {
+            const response = await fetch("/tictactoe/user", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Не удалось получить информацию о пользователе");
+            }
+
+            const data = await response.json();
+
+            if (data.error) {
+                console.error(data.error);
+                clearLocalStorage();
+                window.location.href = "/tictactoe/auth/login";
+                return;
+            }
+
+            return data;
+        } catch (error) {
+            console.error("Ошибка получения данных пользователя:", error);
+            return null;
+        }
+    }
+
+    async function handleProfile() {
+        window.location.href = "/user.html";
+    }
+
+    async function handleExit() {
+        await logout();
+    }
+
+    async function handleGameRequest(event) {
+        const playerChoice = event.target.getAttribute("data-player-choice");
+        const opponent = document.querySelector('input[name="opponent"]:checked')?.value || "computer";
+        await sendGameRequest(playerChoice, opponent);
+    }
+
+    async function handleGoActiveGameClick() {
+        window.location.href = "/game.html";
+    }
+
+
+    async function sendGameRequest(playerChoice, opponent) {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+        }
+
+        const accessToken = localStorage.getItem("accessToken");
+        localStorage.setItem("opponent", opponent);
+        localStorage.setItem("playerChoice", playerChoice);
+
+        try {
+            const response = await fetch("/tictactoe/game", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + accessToken
+                },
+                body: JSON.stringify({
+                    opponent: opponent,
+                    playerChoice: playerChoice
+                })
+            });
+
+            const result = await response.json();
+
+            switch (response.status) {
+                case 200:
+                case 201:
+                    const gameUuid = result.gameUuid;
+                    localStorage.setItem("gameUuid", gameUuid);
+                    window.location.href = "/game.html";
+                    break;
+                case 202:
+                    window.location.href = "/choose-new-game.html";
+                    break;
+                case 208:
+                    const messageDiv = document.getElementById("message");
+                    const goActiveGameButton = document.getElementById("go-active-game");
+                    const activeGameUuid = result.activeGameUuid;
+
+                    if (messageDiv && goActiveGameButton) {
+                        messageDiv.textContent = result.message;
+                        goActiveGameButton.style.display = "inline-block";
+                        localStorage.setItem("gameUuid", activeGameUuid);
+                        localStorage.setItem("playerChoice", result.playerChoice);
+                        localStorage.setItem("opponent", result.opponent);
+                        goActiveGameButton.onclick = handleGoActiveGameClick;
+                    }
+                    break;
+                case 400:
+                    console.error("Ошибка:", result.message);
+                    break;
+                default:
+                    console.error("Неизвестный код ответа! ", result.code);
+                    localStorage.setItem("errorMessage", 'Сетевая ошибка при попытке начала игры! ' + response.status, response.statusText);
+                    window.location.href = "/error.html";
+            }
+        } catch (error) {
+            console.error("Сетевая ошибка при попытке начала игры! ", error);
+        }
+    }
+
+
+    async function logout() {
+        try {
+            await checkAndRefreshToken();
+        } catch (error) {
+            console.error("Ошибка проверки токена");
+            clearLocalStorage();
+            window.location.href = "/tictactoe/auth/login";
+        }
+
+        const accessToken = localStorage.getItem("accessToken");
+
+        try {
+            const response = await fetch("/tictactoe/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + accessToken
+                }
+            });
+            if (response.ok) {
+                clearLocalStorage();
+                window.location.href = "/tictactoe/auth/login";
+            } else {
+                console.error("Ошибка при выходе из системы!", response.status, response.statusText);
+                localStorage.setItem("errorMessage", 'Ошибка при выходе из системы! ' + response.status + response.statusText);
+                window.location.href = "/error.html";
+            }
+        } catch (error) {
+            console.error("Сетевая ошибка при попытке выхода из системы! ", error);
+        }
+    }
+</script>
+</body>
+</html>
