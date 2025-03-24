@@ -11,7 +11,7 @@
 * Gradle (DSL-Kotlin) — система сборки проекта;
 * Spring Framework:
   * Spring Boot — упрощение конфигурации и запуска приложения;
-  * Spring MVC — реализация RESTful API;
+  * Spring MVC — создание RESTful API для клиент-серверного взаимодействия;
   * Spring Data JPA — взаимодействие с PostgreSQL через ORM Hibernate;
   * Spring Security — управление доступом и аутентификацией с использованием JWT;
   * Spring WebSocket — поддержка WebSocket-соединений для обмена данными в реальном времени;
